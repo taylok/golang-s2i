@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export GO_REPO=$(echo $OPENSHIFT_BUILD_SOURCE | sed --expression='s/\.git//g' | sed --expression='s/https:\/\///g')
+if [ -z "$GO_REPO" ]; then
+  export GO_REPO=$(grep ^package /opt/app-root/destination/src/glide.yaml | sed 's/package: //')
+fi
+cd $GOPATH/src/$GO_REPO
+tar cf - vendor

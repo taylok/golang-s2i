@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# S2I assemble script for the 'golang-s2i' image.
+echo OPENSHIFT_BUILD_SOURCE=$OPENSHIFT_BUILD_SOURCE
+export GO_REPO=$(echo $OPENSHIFT_BUILD_SOURCE | sed --expression='s/\.git//g' | sed --expression='s/https:\/\///g')
+if [ -z "$GO_REPO" ]; then
+  export GO_REPO=$(grep ^package /opt/app-root/destination/src/glide.yaml | sed 's/package: //')
+fi
+
+echo GOPATH=$GOPATH
+echo GO_REPO=$GO_REPO
+echo $GOPATH/src/$GO_REPO
+echo $GOPATH/src/$GO_REPO | ls
+mkdir -p /opt/app-root/gopath/src/$GO_REPO
+
+echo /opt/app-root/destination/src/* | ls
+# Copy the source
+cp -ar /opt/app-root/destination/src/* /opt/app-root/gopath/src/$GO_REPO
+rm -rf /opt/app-root/destination/src/*
+
+# Restore build artifacts
+#if [ "$(ls /opt/app-root/destination/artifacts/ 2>/dev/null)" ]; then
+#    echo "Using artifacts from previous build."
+#    mv /opt/app-root/destination/artifacts/vendor $GOPATH/src/$GO_REPO/vendor
+#else
+#    pushd $GOPATH/src/$GO_REPO
+#    echo "Obtaining artifacts."
+#    glide install -v
+#    popd
+#
+#fi
+
+mkdir $APP_ROOT/templates
+cp -ar /opt/app-root/gopath/src/github.com/taylok/golang-ex/templates/* $APP_ROOT/templates
+
+go build -o goexec $GO_REPO
