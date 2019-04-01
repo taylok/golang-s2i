@@ -13,6 +13,8 @@ LABEL io.k8s.description="Platform for building go based programs" \
       io.openshift.s2i.scripts-url="image:///usr/local/s2i" \
       io.openshift.s2i.destination="/opt/app-root/destination"
 
+# This base image does not allow yum install without subscription manager on the host
+# Other variants might
 #RUN yum clean all && \
 #    yum install -y epel-release && \
 #    yum install -y golang glide && \
